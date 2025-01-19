@@ -44,3 +44,5 @@ const sendEmail = async (payload: SendMailOptions) => {
 };
 
 export default sendEmail;
+
+// TODO Este é para mim (DIOGO) ignora andré, development fazer como este video no fim. https://www.youtube.com/watch?v=sPg2covC5Po
