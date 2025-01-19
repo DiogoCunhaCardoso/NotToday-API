@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist", // Ensure this points to your dist folder
+    "rootDir": "./src", // Your source folder
+    "module": "ESNext", // Use ES module syntax
+    "moduleResolution": "Node", // Ensure Node-style resolution
+    "target": "ESNext", // Use latest JavaScript
+    "esModuleInterop": true, // Enable compatibility with CommonJS modules
+    "skipLibCheck": true
+  },
+  "include": ["src"], // Compile all files inside src
+  "exclude": ["node_modules", "dist"] // Don't include the dist folder in the compilation
+}
