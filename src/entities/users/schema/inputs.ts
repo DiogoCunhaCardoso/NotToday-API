@@ -29,11 +29,9 @@ type LoginResponse {
 
 export const userOmittedType = `#graphql
 type UserOmittedFields {
-  id: ID!
+  _id: ID!
   name: String!
-  addictionType: AddictionEnum
-  daysSober: Int!
-  copingMechanisms: [String]!
+  addictions: [UserAddiction]
 }
 
 `;

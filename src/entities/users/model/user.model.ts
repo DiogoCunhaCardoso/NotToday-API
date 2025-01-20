@@ -6,6 +6,7 @@ import { AddictionEnum, SeverityEnum } from "../../../types/addiction.types.js";
 import lodash from "lodash";
 const { omit } = lodash;
 import { config } from "../../../utils/initEnv.js";
+import UserAddictionModel from "../../userAddictions/models/userAddictions.model.js";
 
 // Define fields to be omitted for privacy
 export const privateFields = [
@@ -33,28 +34,7 @@ const userSchema = new Schema<IUserModel>(
     },
     passwordResetCode: { type: String },
     password: { type: String, required: true },
-    addictionType: {
-      type: String,
-      enum: Object.values(AddictionEnum),
-      default: AddictionEnum.NONE,
-    },
-    addictionSeverity: {
-      type: String,
-      enum: Object.values(SeverityEnum),
-      default: SeverityEnum.LOW,
-    },
-    addictionTriggers: {
-      type: [String],
-      default: [],
-    },
-    daysSober: {
-      type: Number,
-      default: 0,
-    },
-    copingMechanisms: {
-      type: [String],
-      default: [],
-    },
+    addictions: [{ type: Schema.Types.ObjectId, ref: "UserAddiction" }],
   },
   { timestamps: true }
 );

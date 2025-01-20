@@ -1,19 +1,23 @@
 export const createDiaryInputType = `#graphql
   input CreateDiaryInput {
-    apagaESubstituiDepois: ID!
+    userId: ID!
+    title: String!
+    content: String!
   }
 `;
 
 export const updateDiaryInputType = `#graphql
   input UpdateDiaryInput {
-    apagaESubstituiDepois: ID!
+    id: ID!
+    userId: ID!
+    title: String
+    content: String
   }
 `;
 
 export const deleteDiaryInputType = `#graphql
   input DeleteDiaryInput {
-    apagaESubstituiDepois: ID!
+    id: ID!
+    userId: ID!
   }
 `;
-
-/* ! se for obrigatorio. */
