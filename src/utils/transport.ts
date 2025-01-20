@@ -5,44 +5,72 @@ import nodemailer, {
 } from "nodemailer";
 import { config } from "./initEnv.js";
 
-const smtp = {
-  user: config.SMTP.USER,
-  pass: config.SMTP.PASSWORD,
+// Function to create the development SMTP configuration
+const createDevelopmentConfig = async () => {
+  try {
+    const testAccount = await nodemailer.createTestAccount();
+    return {
+      host: testAccount.smtp.host,
+      port: testAccount.smtp.port,
+      secure: testAccount.smtp.secure,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    };
+  } catch (error) {
+    console.error("Error creating Ethereal account:", error);
+    throw error;
+  }
+};
+
+// Function to create the production SMTP configuration
+const createProductionConfig = () => ({
   host: config.SMTP.HOST,
   port: config.SMTP.PORT,
   secure: config.SMTP.SECURE,
-};
-
-const transporter: Transporter<SentMessageInfo> = nodemailer.createTransport({
-  ...smtp,
-  auth: { user: smtp.user, pass: smtp.pass },
+  auth: {
+    user: config.SMTP.USER,
+    pass: config.SMTP.PASSWORD,
+  },
 });
 
-// Helper function to determine the "from" email
+const createTransporter = async (): Promise<Transporter<SentMessageInfo>> => {
+  const smtpConfig =
+    config.NODE_ENV === "development"
+      ? await createDevelopmentConfig()
+      : createProductionConfig();
+
+  return nodemailer.createTransport(smtpConfig);
+};
+
 const getFromEmail = () =>
   config.NODE_ENV === "development" ? "test@example.com" : config.SMTP.USER;
 
 /* SEND EMAIL --------------------------------------------------------- */
 
 const sendEmail = async (payload: SendMailOptions) => {
-  const emailPayload = {
-    ...payload,
-    from: getFromEmail(),
-  };
+  try {
+    const transporter = await createTransporter();
 
-  transporter.sendMail(emailPayload, (error, info) => {
-    if (error) {
-      console.error("Error sending email:", error);
-      return;
-    }
+    const emailPayload = {
+      ...payload,
+      from: getFromEmail(),
+    };
 
-    // Log the preview URL if in development mode
-    if (config.NODE_ENV === "development") {
-      console.log(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
-    }
-  });
+    transporter.sendMail(emailPayload, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return;
+      }
+
+      if (config.NODE_ENV === "development") {
+        console.log(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+      }
+    });
+  } catch (error) {
+    console.error("Error in sendEmail function:", error);
+  }
 };
 
 export default sendEmail;
-
-// TODO Este é para mim (DIOGO) ignora andré, development fazer como este video no fim. https://www.youtube.com/watch?v=sPg2covC5Po

@@ -100,8 +100,6 @@ const userResolvers = {
             text: emailTemplate.text,
             html: emailTemplate.html,
           });
-          console.log(`Verification email sent to ${email}`);
-          console.log(`Verification URL: ${verificationUrl}`);
         } catch (error) {
           console.error("Error sending verification email:", error);
         }
