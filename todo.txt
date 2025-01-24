@@ -1,0 +1,162 @@
+Eu escrevi tudo e depois pus o chatGPT a meter melhor. Aqui tens as tarefas:
+
+-------------------------------------------------------------------------------------------------
+
+Passo 1: Testar e validar as queries existentes
+Antes de adicionares ou modificar qualquer funcionalidade, testa todas as 
+queries e mutations atuais para garantir que o sistema está estável. Se necessário:
+
+Usa o Apollo Sandbox ou outra ferramenta para rodar as queries.
+Documenta as queries que funcionam e corrige as que precisam ser ajustadas.
+Faz o commit assim que estiverem todas corrigidas.
+
+-------------------------------------------------------------------------------------------------
+
+Passo 2: Criar a entidade UserMilestone
+
+a. Estrutura inicial:
+    Criar a pasta entities/UserMilestone:
+        Crie dentro da estrutura entities.
+            Definir o model no MongoDB:
+            Nome: UserMilestone.
+                Campos:
+                userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+                name: { type: String, required: true },
+                level: { type: Number, min: 1, max: 7, required: true },
+                achievedDate: { type: Date, default: Date.now },
+
+    Cria na mesma os types IUserMilestone e mete igual aos outros, podes ver o addiction.model como exemplo.
+
+-------------------------------------------------------------------------------------------------
+
+Passo 3: Criar os GraphQL types (typeDefs):
+
+# USER MILESTONE (BADGES)
+type UserMilestone {
+  id: ID!
+  name: String!
+  level: Int!
+  achievedDate: String!
+}
+
+type Query {
+  """
+  Get all milestones of a user.
+
+  Access: Private (User role that is owner).
+  """
+  getUserMilestones(userId: ID!): [UserMilestone]
+}
+
+Verifica se o nome dos arquivos e das funções está consistente com o restante da estrutura do código.
+
+-------------------------------------------------------------------------------------------------
+
+Passo 4: Implementar a subscription para progresso diário
+Criar a subscription para milestones
+
+O chat fez assim eu nao faco a minima se esta certo. Mas peloq  vi pelo stor parece algo do genero
+
+const { PubSub } = require('graphql-subscriptions');
+const pubsub = new PubSub();
+
+async function checkMilestones(userId, soberDays) {
+  const milestones = [
+    { days: 7, name: 'Awakening lvl 1', level: 1 },
+    { days: 14, name: 'Determination lvl 2', level: 2 },
+    { days: 30, name: 'Resilience lvl 3', level: 3 },
+    // Adicione os outros milestones aqui.
+  ];
+
+  milestones.forEach(async (milestone) => {
+    if (soberDays === milestone.days) {
+      await UserMilestone.create({
+        userId,
+        name: milestone.name,
+        level: milestone.level,
+      });
+
+      pubsub.publish('MILESTONE_ACHIEVED', {
+        milestoneAchieved: { userId, name: milestone.name, level: milestone.level },
+      });
+    }
+  });
+}
+
+type Subscription {
+  """
+  Listen for milestone achievements of a user.
+
+  Access: Private (User role that is owner).
+  """
+  milestoneAchieved: UserMilestone!
+}
+
+-------------------------------------------------------------------------------------------------
+
+Passo 5: Documentar todas as queries, mutations e subscriptions
+Para cada query e mutation no arquivo typeDefs, inclua descrições completas. Exemplo:
+
+type Query {
+  """
+  Retrieve all addictions from the database.
+
+  Access: Private (ADMIN role only).
+  """
+  addictions: [Addiction]
+}
+
+André, no access escreve um destes:
+
+Public: Qualquer pessoa pode acessar.
+Private: Apenas usuários logados.
+Private (ADMIN role only): Apenas administradores.
+Private (User role that is owner): Apenas o usuário dono pode acessar.
+
+Depois no futuro faz-se verificar mesmo, mas para já escreve.
+
+-------------------------------------------------------------------------------------------------
+
+Verificar o checklist:
+Inclua descrições para as rotas mencionadas:
+
+ get all numbers of users
+ get all user addictions of a user
+ get all addictions
+ get one userAddiction of a user
+ delete a userAddiction
+ get all diaries of a user
+ get one diary of a user
+ adicionar 1 diário a user
+ editar diário de 1 user
+ em tempo real adicionar tempo ao soberDays
+ ficar à escuta de milestones
+ get all badges de um user
+ editar personal info
+ apagar conta
+ registrar
+ login
+ esqueceu senha
+ confirmar email
+
+ pode ser que fakte mais "rotas"
+
+ -------------------------------------------------------------------------------------------------
+
+Passo 6: Implementar paginação
+Criar paginação no query de users:
+
+type Query {
+  """
+  Get a paginated list of users.
+
+  Access: Private (ADMIN role only).
+  """
+  users(limit: Int!, offset: Int!): [User]
+}
+
+No resolver, implementa:
+
+async users(_, { limit, offset }) {
+  return await User.find().skip(offset).limit(limit);
+}

@@ -14,15 +14,6 @@ const userTypeDefs = `#graphql
   ${loginInputType}
   ${loginResponseType}
   ${userOmittedType}
-  
-
-  # USER MILESTONE (BADGES) ----------------------------------------------------
-
-  type UserMilestone {
-    id: ID!
-    name: String!
-    achievedDate: String!
-  }
 
   # USER -----------------------------------------------------------------------
 
