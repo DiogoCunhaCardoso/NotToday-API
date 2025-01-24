@@ -1,7 +1,6 @@
 export const createAddictionInputType = `#graphql
 input CreateAddictionInput {
   type: AddictionEnum!
-  description: String!
   symptoms: [String]!
   treatmentOptions: [String]!
   severity: SeverityEnum!

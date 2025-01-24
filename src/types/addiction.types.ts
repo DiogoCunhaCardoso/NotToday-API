@@ -33,19 +33,26 @@ export enum SeverityEnum {
 
 //TODO: adicionar os tipos aqui para os resolvers. Falta tudo dentro dessas interfaces vê onde elas sao usadas com ctrl shift f
 
-export interface createAddictionInput {}
-export interface updateAddictionInput {
-  id: Types.ObjectId;
-}
-export interface createAddictionInput {}
-
-export interface IAddictionModel {
-  id: Types.ObjectId;
+export interface createAddictionInput {
   type: AddictionEnum;
-
   symptoms: string[];
   treatmentOptions: string[];
   severity: SeverityEnum;
   triggers: string[];
   copingMechanisms: string[];
+}
+
+
+export interface IAddictionModel {
+  _id: Types.ObjectId;
+  type: AddictionEnum;
+  symptoms: string[];
+  treatmentOptions: string[];
+  severity: SeverityEnum;
+  triggers: string[];
+  copingMechanisms: string[];
+}
+
+export interface updateAddictionInput extends IAddictionModel {
+ 
 }

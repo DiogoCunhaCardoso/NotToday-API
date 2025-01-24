@@ -1,5 +1,6 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import { AddictionEnum, SeverityEnum } from "./addiction.types.js";
+import { IUserAddictionModel } from "./userAddiction.types.js";
 
 /* INTERFACES ----------------------------------------------------------- */
 export interface CreateUserInput {
@@ -22,13 +23,10 @@ export interface IUserModel extends CreateUserInput, Document {
   pfp: string;
   emailVerified: boolean;
   passwordResetCode: string;
-  addictionType: AddictionEnum;
-  addictionSeverity: SeverityEnum;
-  addictionTriggers: string[];
-  daysSober: number;
-  copingMechanisms: string[];
   createdAt: Date;
   updatedAt: Date;
+  addictions: Types.ObjectId[];
+
 
   comparePassword(candidatePassword: string): Promise<boolean>;
   omitPrivateFields(): Partial<IUserModel>;

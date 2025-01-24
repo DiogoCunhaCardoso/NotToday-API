@@ -2,15 +2,14 @@ import {
   createDiaryInputType,
   updateDiaryInputType,
   deleteDiaryInputType,
-} from "./inputs";
+} from "./inputs.js";
 
-const DiaryTypeDefs = `#graphql
+const diaryTypeDefs = `#graphql
 
 ${createDiaryInputType}
 ${updateDiaryInputType}
 ${deleteDiaryInputType}
 
-  #TODO verifica se ta igual ao model
   type Diary {
   id: ID!
   userId: ID!
@@ -32,8 +31,8 @@ ${deleteDiaryInputType}
     # Updates an diary
     updateDiary(input: UpdateDiaryInput!): Diary!       
     # Deletes an diary
-    deleteDiary(type: DeleteDiaryInput!): String!       
+    deleteDiary(input: DeleteDiaryInput!): String!       
   }
 `;
 
-export default DiaryTypeDefs;
+export default diaryTypeDefs;

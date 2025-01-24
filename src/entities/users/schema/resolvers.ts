@@ -29,6 +29,11 @@ const userResolvers = {
       const users = await UserModel.find();
       return users;
     }),
+    totalUsers: catchAsyncErrors(async () => {
+        const total = await UserModel.countDocuments();
+        return total;
+      }
+    )
   },
 
   Mutation: {
@@ -123,7 +128,7 @@ const userResolvers = {
       return { user, token };
     }),
 
-    setAddictionType: catchAsyncErrors(
+    /* setAddictionType: catchAsyncErrors(
       async (_, { userId, addictionType }: SetAddictionTypeInput) => {
         // Validate addictionType
         appAssert(
@@ -141,7 +146,7 @@ const userResolvers = {
         await user.save();
         return user;
       }
-    ),
+    ), */
 
     deleteUser: catchAsyncErrors(async (_, { id }: { id: string }) => {
       const user = await UserModel.findByIdAndDelete(id);
@@ -171,7 +176,7 @@ const userResolvers = {
       }
     ),
 
-    incrementDaysSober: catchAsyncErrors(
+   /*  incrementDaysSober: catchAsyncErrors(
       async (_, { userId }: { userId: string }) => {
         const user = await UserModel.findById(userId);
         appAssert(user, "USER_NOT_FOUND", "User not found", { userId });
@@ -180,7 +185,7 @@ const userResolvers = {
         await user.save();
         return user;
       }
-    ),
+    ), */
   },
 };
 

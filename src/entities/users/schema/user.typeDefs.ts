@@ -32,11 +32,7 @@ const userTypeDefs = `#graphql
     email: String!
     password: String!
     emailVerified: Boolean!
-    addictionType: AddictionEnum
-    addictionSeverity: SeverityEnum
-    addictionTriggers: [String]!
-    daysSober: Int!
-    copingMechanisms: [String]!
+    addictions: [UserAddiction]
 }
 
 
@@ -45,17 +41,18 @@ const userTypeDefs = `#graphql
     user(id: ID!): User!
     # Retrieves a list of all users
     users: [User]!
+    totalUsers: Int!
   }
 
   type Mutation {
     # Creates a new user
     createUser(input: CreateUserInput!): UserOmittedFields!
     # Sets the addiction type for a user
-    setAddictionType(input: SetAddictionTypeInput!): User!
+    # setAddictionType(input: SetAddictionTypeInput!): User!
     # Logins user by generating a token
     login(input: LoginInput!): LoginResponse!
     # Increments days sober
-    incrementDaysSober(userId: ID!): User!
+    # incrementDaysSober(userId: ID!): User!
     # Resets Password
     resetPassword(userId: ID!, newPassword: String!): String!
     # Deletes a user
