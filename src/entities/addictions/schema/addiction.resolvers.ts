@@ -49,49 +49,28 @@ const addictionResolvers = {
     
 
     // Update an existing addiction
-    updateAddiction: catchAsyncErrors(
-      async (_: any, { input }: { input: updateAddictionInput }) => {
-        const { _id, type, ...updates } = input;
+    updateAddiction: catchAsyncErrors(async (_, { input }: { input: updateAddictionInput }) => {
+      const { _id, type, severity, symptoms, treatmentOptions, triggers, copingMechanisms } = input;
     
-        // Find the addiction by its ID
-        const addictionToUpdate = await AddictionModel.findById(_id);
+      
+      // Busca a addiction pelo ID
+      const addiction = await AddictionModel.findByIdAndUpdate(_id);
+      console.log("Found addiction:", addiction); // Debugging
     
-        // If no addiction exists with the given _, throw an error
-        appAssert(
-          addictionToUpdate,
-          "ADDICTION_NOT_FOUND",
-          "No addiction found with this ID.",
-          { _id }
-        );
+      appAssert(addiction, "ADDICTION_NOT_FOUND", "No addiction found with this ID.", { _id });
     
-        // If the update includes a new type, check if it already exists in another addiction
-        if (type && type !== addictionToUpdate.type) {
-          const existingAddiction = await AddictionModel.findOne({
-            type, // Check if the new type already exists
-            _id: { $ne: _id }, // Exclude the current addiction being updated
-          });
+      // Atualiza apenas os campos enviados
+      if (type) addiction.type = type;
+      if (severity) addiction.severity = severity;
+      if (symptoms) addiction.symptoms = symptoms;
+      if (treatmentOptions) addiction.treatmentOptions = treatmentOptions;
+      if (triggers) addiction.triggers = triggers;
+      if (copingMechanisms) addiction.copingMechanisms = copingMechanisms;
     
-          appAssert(
-            !existingAddiction,
-            "ADDICTION_ALREADY_EXISTS",
-            "An addiction with this type already exists.",
-            { type }
-          );
-        }
+      await addiction.save();
     
-        // Proceed with update
-        const updatedAddiction = await AddictionModel.findByIdAndUpdate(
-          _id, // Find addiction by ID
-          { type, ...updates }, // Update fields
-          { new: true }
-        );
-    
-        return updatedAddiction;
-      }
-    ),
-    
-    
-    
+      return addiction;
+    }),
     
 
     // Delete an addiction
@@ -107,5 +86,6 @@ const addictionResolvers = {
     ),
   },
 };
+
 
 export default addictionResolvers;

@@ -1,13 +1,13 @@
 export const addAddictionToUserInputType = `#graphql
   input AddAddictionToUserInput {
-   userId: String!
+   userId: ID!
    addictionType: String!
   }
 `;
 
 export const removeAddictionFromUserInputType = `#graphql
   input RemoveAddictionFromUserInput {
-   userId: String!
+   userId: ID!
    addictionType: String!
   }
 `;

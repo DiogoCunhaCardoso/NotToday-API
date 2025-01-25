@@ -21,6 +21,7 @@ const userTypeDefs = `#graphql
   type UserMilestone {
     id: ID!
     name: String!
+    level: Int #default 1
     achievedDate: String!
   }
 

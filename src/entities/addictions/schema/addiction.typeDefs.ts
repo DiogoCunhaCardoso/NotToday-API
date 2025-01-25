@@ -38,10 +38,10 @@ enum SeverityEnum {
   CRITICAL
 }
 
+
 type Addiction {
   id: ID!
   type: AddictionEnum!
-  description: String!
   symptoms: [String]!
   treatmentOptions: [String]!
   severity: SeverityEnum!
