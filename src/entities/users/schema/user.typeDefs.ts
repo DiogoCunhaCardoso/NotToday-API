@@ -21,7 +21,6 @@ const userTypeDefs = `#graphql
   type UserMilestone {
     id: ID!
     name: String!
-    level: Int #default 1
     achievedDate: String!
   }
 
@@ -36,6 +35,11 @@ const userTypeDefs = `#graphql
     addictions: [UserAddiction]
 }
 
+type UsersPagination {
+  users: [User]!
+  totalUsers: Int!
+}
+
 
   type Query {
     # Gets a user by ID
@@ -43,6 +47,10 @@ const userTypeDefs = `#graphql
     # Retrieves a list of all users
     users: [User]!
     totalUsers: Int!
+
+    # Get a paginated list of users.
+    # Access: Private (ADMIN role only).
+    paginatedUsers(limit: Int!, offset: Int!): UsersPagination!
   }
 
   type Mutation {

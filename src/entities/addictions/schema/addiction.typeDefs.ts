@@ -40,7 +40,7 @@ enum SeverityEnum {
 
 
 type Addiction {
-  id: ID!
+  _id: ID!
   type: AddictionEnum!
   symptoms: [String]!
   treatmentOptions: [String]!
@@ -50,13 +50,38 @@ type Addiction {
 }
 
 type Query {
+  """
+  Fetch a single addiction by its ID.
+
+  Access: Public (Any User).
+  """
   addiction(id: ID!): Addiction
+  """
+  Fetch all addictions.
+
+  Access: Public (Any User).
+  """
   addictions: [Addiction]
 }
 
 type Mutation {
+  """
+  Create a new addiction entry.
+
+  Access: Private (ADMIN role only).
+  """
   createAddiction(input: CreateAddictionInput!): Addiction!
+  """
+  Update an existing addiction entry.
+
+  Access: Private (ADMIN role only).
+  """
   updateAddiction(input: UpdateAddictionInput!): Addiction!
+  """
+  Delete an addiction entry by its ID.
+
+  Access: Private (ADMIN role only).
+  """
   deleteAddiction(input: DeleteAddictionInput!): String!
 }
 `;

@@ -32,7 +32,7 @@ const userAddictionResolvers = {
         user.addictions.push(newUserAddiction._id);
         await user.save();
   
-        // 🔥 Ensure `addictions` are properly populated before returning
+        // Ensure `addictions` are properly populated before returning
         const updatedUser = await UserModel.findById(userId).populate("addictions");
   
         return updatedUser;
@@ -40,7 +40,7 @@ const userAddictionResolvers = {
     
     
   
-      //Criar removeAddictionFromUser
+      //Create removeAddictionFromUser
       removeAddictionFromUser: catchAsyncErrors(async (_, { input }: { input: RemoveAddictionFromUserInput }) => {
         const { userId, addictionType } = input; 
       

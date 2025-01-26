@@ -11,7 +11,7 @@ input CreateAddictionInput {
 
 export const updateAddictionInputType = `#graphql
 input UpdateAddictionInput {
-  id: ID!
+  _id: ID!
   type: AddictionEnum
   symptoms: [String]
   treatmentOptions: [String]

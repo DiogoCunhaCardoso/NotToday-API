@@ -53,13 +53,13 @@ const addictionResolvers = {
       const { _id, type, severity, symptoms, treatmentOptions, triggers, copingMechanisms } = input;
     
       
-      // Busca a addiction pelo ID
+      // Search for addition by ID
       const addiction = await AddictionModel.findByIdAndUpdate(_id);
       console.log("Found addiction:", addiction); // Debugging
     
       appAssert(addiction, "ADDICTION_NOT_FOUND", "No addiction found with this ID.", { _id });
     
-      // Atualiza apenas os campos enviados
+      // Update only the submitted fields
       if (type) addiction.type = type;
       if (severity) addiction.severity = severity;
       if (symptoms) addiction.symptoms = symptoms;

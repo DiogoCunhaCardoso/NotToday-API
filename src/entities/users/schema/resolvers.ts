@@ -17,6 +17,7 @@ const MAX_PASSWORD_LENGTH = 20;
 
 const userResolvers = {
   Query: {
+    // Obter um usuário específico pelo ID
     user: catchAsyncErrors(async (_, { id }: { id: string }) => {
       const user = await UserModel.findById(id);
       appAssert(user, "USER_NOT_FOUND", "User not found", {
@@ -25,15 +26,26 @@ const userResolvers = {
       return user;
     }),
 
+    // Obter uma lista completa de usuários (sem paginação)
     users: catchAsyncErrors(async () => {
-      const users = await UserModel.find();
-      return users;
+      return await UserModel.find();
     }),
+
+    // Retornar o total de usuários cadastrados
     totalUsers: catchAsyncErrors(async () => {
-        const total = await UserModel.countDocuments();
-        return total;
-      }
-    )
+      return await UserModel.countDocuments();
+    }),
+
+    
+    paginatedUsers: catchAsyncErrors(async (_, { limit, offset }, context) => {
+      // Apenas ADMIN pode acessar
+      appAssert(context.user?.role === "ADMIN", "UNAUTHORIZED", "Access denied.");
+
+      const users = await UserModel.find().skip(offset).limit(limit);
+      const totalUsers = await UserModel.countDocuments();
+
+      return { users, totalUsers };
+    }),
   },
 
   Mutation: {

@@ -94,16 +94,16 @@ const diaryResolvers = {
         const { id, userId } = input;
         const entry = await DiaryModel.findById(id);
         
-        // Verificar se o diário existe
+        // Check if the journal exists
         appAssert(entry, "ENTRY_NOT_FOUND", "Diary entry not found.", { id });
     
-        // Verificar se o diário pertence ao utilizador
+        // Check if the journal belongs to the user
         appAssert(entry.userId.toString() === userId, "UNAUTHORIZED", "You cannot delete this diary entry.", { userId });
     
-        // Excluir o diário
+        // Delete the journal
         await DiaryModel.findByIdAndDelete(id);
     
-        // Retornar uma mensagem de sucesso
+        // Return a success message
         return "Diary entry deleted successfully.";
       }
     ),
