@@ -9,9 +9,9 @@ ${removeAddictionFromUserInputType}
 
 type UserAddiction {
   _id: ID!
-  addiction: ID!
-  severity: SeverityEnum!
-  soberDays: Int!
+  addiction: ID
+  severity: SeverityEnum
+  soberDays: Int
 }
 
 type Mutation {

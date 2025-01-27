@@ -53,6 +53,16 @@ export interface IAddictionModel {
   copingMechanisms: string[];
 }
 
-export interface updateAddictionInput extends IAddictionModel {
- 
+export interface updateAddictionInput {
+  _id: string;
+  type: AddictionEnum;
+  symptoms: string[];
+  treatmentOptions: string[];
+  severity: SeverityEnum;
+  triggers: string[];
+  copingMechanisms: string[];
+}
+
+export interface deleteAddictionInput {
+  _id: string,
 }
