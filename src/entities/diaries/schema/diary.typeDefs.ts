@@ -18,7 +18,6 @@ ${deleteDiaryInputType}
   date: String!
 }
 
-
   type Query {
     # Retrieves a list of all diaries from a user
     diaryEntries(userId: ID!): [Diary]!
@@ -27,11 +26,11 @@ ${deleteDiaryInputType}
   type Mutation {
     #TODO
     # Creates a new diary
-    createDiary(input: CreateDiaryInput!): Diary!       
+    createDiary(userId: ID!, input: CreateDiaryInput!): Diary!
     # Updates an diary
     updateDiary(input: UpdateDiaryInput!): Diary!       
     # Deletes an diary
-    deleteDiary(input: DeleteDiaryInput!): String!       
+    deleteDiary(id: ID!): String!       
   }
 `;
 

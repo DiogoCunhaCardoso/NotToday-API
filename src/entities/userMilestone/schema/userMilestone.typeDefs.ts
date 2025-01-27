@@ -55,7 +55,7 @@ type Subscription {
 
   Private (User role that is owner): Apenas o usuário dono pode acessar.
   """
-  milestoneAchieved: UserMilestone!
+  milestoneAchieved: UserMilestone! 
 }
 `;
 

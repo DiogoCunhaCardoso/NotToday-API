@@ -27,7 +27,6 @@ export interface IUserModel extends CreateUserInput, Document {
   updatedAt: Date;
   addictions: Types.ObjectId[];
 
-
   comparePassword(candidatePassword: string): Promise<boolean>;
   omitPrivateFields(): Partial<IUserModel>;
   generateAuthToken(): string;

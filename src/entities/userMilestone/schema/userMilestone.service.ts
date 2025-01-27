@@ -28,7 +28,9 @@ export async function checkMilestones(userId: string, soberDays: number) {
         milestoneAchieved: newMilestone,
       });
 
-      console.log(`Milestone atingido: ${milestone.name} para o utilizador ${userId}`);
+      console.log(
+        `Milestone atingido: ${milestone.name} para o utilizador ${userId}`
+      );
     }
   }
 }

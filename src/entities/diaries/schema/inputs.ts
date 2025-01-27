@@ -1,6 +1,5 @@
 export const createDiaryInputType = `#graphql
   input CreateDiaryInput {
-    userId: ID!
     title: String!
     content: String!
   }
