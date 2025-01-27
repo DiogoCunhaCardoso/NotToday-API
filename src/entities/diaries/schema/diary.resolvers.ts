@@ -2,13 +2,9 @@ import { catchAsyncErrors } from "../../../middleware/catchAsyncErrors.js";
 import {
   DiaryEntryInput,
   UpdateDiaryEntryInput,
-  DeleteDiaryEntryInput,
 } from "../../../types/diary.types.js";
 import { appAssert } from "../../../utils/appAssert.js";
 import { DiaryModel } from "../models/diary.model.js";
-
-/* #TODO nada disto está testado no Apollo Playground 
-(http://localhost:4000/) vê se da e se adiciona a BD */
 
 const diaryResolvers = {
   Query: {
@@ -23,12 +19,20 @@ const diaryResolvers = {
 
   Mutation: {
     // Create a new diary entry
-    createDiary: catchAsyncErrors(
-      async (
-        _,
-        { userId, input }: { userId: string; input: DiaryEntryInput }
-      ) => {
+    createDiary: catchAsyncErrors(async (_,{ userId, input }: { userId: string; input: DiaryEntryInput }, context) => {
         const { title, content } = input;
+
+        console.log("Role do user autenticado:", context.user);
+        // Verifica se o utilizador está autenticado e possui permissão
+          if (!context.user) {
+            throw new Error("Sem token. Faça login para continuar.");
+          }
+
+           // Verifica se o role do utilizador é "USER" ou "ADMIN"
+           if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
+            throw new Error("Você não tem permissão para adicionar vícios a outro user.");
+          }
+          console.log("Role do user autenticado:", context.user.role);
 
         appAssert(
           userId && title && content,
@@ -89,8 +93,21 @@ const diaryResolvers = {
     ),
 
     // Delete a diary entry
-    deleteDiary: catchAsyncErrors(async (_, { id }: { id: string }) => {
+    deleteDiary: catchAsyncErrors(async (_, { id }: { id: string }, context) => {
       const entry = await DiaryModel.findById(id);
+
+      
+      console.log("Role do user autenticado:", context.user);
+      // Verifica se o utilizador está autenticado e possui permissão
+        if (!context.user) {
+          throw new Error("Sem token. Faça login para continuar.");
+        }
+
+         // Verifica se o role do utilizador é "USER" ou "ADMIN"
+         if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
+          throw new Error("Você não tem permissão para adicionar vícios a outro user.");
+        }
+        console.log("Role do user autenticado:", context.user.role);
 
       // Check if the journal exists
       appAssert(entry, "ENTRY_NOT_FOUND", "Diary entry not found.", { id });

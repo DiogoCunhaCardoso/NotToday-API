@@ -15,15 +15,39 @@ const userMilestoneResolvers = {
 
   Mutation: {
     createUserMilestone: catchAsyncErrors(
-      async (_, { input }: { input: CreateUserMilestoneInput }) => {
+      async (_, { input }: { input: CreateUserMilestoneInput }, context) => {
         const newMilestone = new UserMilestoneModel(input);
+        
+        console.log("Role do user autenticado:", context.user);
+        // Verifica se o utilizador está autenticado e possui permissão
+          if (!context.user) {
+            throw new Error("Sem token. Faça login para continuar.");
+          }
+
+           // Verifica se o role do utilizador é "USER" ou "ADMIN"
+           if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
+            throw new Error("Você não tem permissão para adicionar vícios a outro user.");
+          }
+          console.log("Role do user autenticado:", context.user.role);
         await newMilestone.save();
         return newMilestone;
       }
     ),
 
-    deleteUserMilestone: catchAsyncErrors(async (_, { id }: { id: string }) => {
+    deleteUserMilestone: catchAsyncErrors(async (_, { id }: { id: string }, context) => {
       const milestone = await UserMilestoneModel.findByIdAndDelete(id);
+      
+      console.log("Role do user autenticado:", context.user);
+      // Verifica se o utilizador está autenticado e possui permissão
+        if (!context.user) {
+          throw new Error("Sem token. Faça login para continuar.");
+        }
+
+         // Verifica se o role do utilizador é "USER" ou "ADMIN"
+         if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
+          throw new Error("Você não tem permissão para adicionar vícios a outro user.");
+        }
+        console.log("Role do user autenticado:", context.user.role);
       appAssert(milestone, "MILESTONE_NOT_FOUND", "Milestone not found", { id });
       return "Milestone deleted successfully.";
     }),

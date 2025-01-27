@@ -39,6 +39,7 @@ const userResolvers = {
     
     paginatedUsers: catchAsyncErrors(async (_, { limit, offset }, context) => {
       // Apenas ADMIN pode acessar
+      console.log("Usuário autenticado:", context.user);
       appAssert(context.user?.role === "ADMIN", "UNAUTHORIZED", "Access denied.");
 
       const users = await UserModel.find().skip(offset).limit(limit);
@@ -50,8 +51,22 @@ const userResolvers = {
 
   Mutation: {
     createUser: catchAsyncErrors(
-      async (_, { input }: { input: CreateUserInput }) => {
+      async (_, { input }: { input: CreateUserInput }, context) => {
         const { name, email, password } = input;
+
+        
+        console.log("Role do user autenticado:", context.user);
+        // Verifica se o utilizador está autenticado e possui permissão
+          if (!context.user) {
+            throw new Error("Sem token. Faça login para continuar.");
+          }
+
+           // Verifica se o role do utilizador é "USER" ou "ADMIN"
+           if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
+            throw new Error("Você não tem permissão para adicionar vícios a outro user.");
+          }
+          console.log("Role do user autenticado:", context.user.role);
+
         // Check if all three fields are provided
         appAssert(name, "MISSING_FIELDS", "Name is required.", {
           name,
@@ -134,9 +149,11 @@ const userResolvers = {
       // Compare the provided password with the stored password
       const isPasswordValid = await user.comparePassword(password);
       appAssert(isPasswordValid, "WRONG_CREDENTIALS", "Wrong Credentials");
+      console.log(`✅ Usuário autenticado: ${user.email} (Role: ${user.role})`);
 
       // Generate JWT token
       const token = user.generateAuthToken();
+      console.log('Token gerado:', token);
       return { user, token };
     }),
 
@@ -160,8 +177,22 @@ const userResolvers = {
       }
     ), */
 
-    deleteUser: catchAsyncErrors(async (_, { id }: { id: string }) => {
+    deleteUser: catchAsyncErrors(async (_, { id }: { id: string }, context) => {
       const user = await UserModel.findByIdAndDelete(id);
+
+      
+      console.log("Role do user autenticado:", context.user);
+      // Verifica se o utilizador está autenticado e possui permissão
+        if (!context.user) {
+          throw new Error("Sem token. Faça login para continuar.");
+        }
+
+         // Verifica se o role do utilizador é "USER" ou "ADMIN"
+         if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
+          throw new Error("Você não tem permissão para adicionar vícios a outro user.");
+        }
+        console.log("Role do user autenticado:", context.user.role);
+
       appAssert(user, "USER_NOT_FOUND", "User not found", { id });
       return { message: "User deleted successfully." };
     }),
