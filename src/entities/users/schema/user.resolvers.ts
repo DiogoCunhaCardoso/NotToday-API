@@ -1,12 +1,7 @@
 import { UserModel } from "../model/user.model.js";
 import { appAssert } from "../../../utils/appAssert.js";
 import { catchAsyncErrors } from "../../../middleware/catchAsyncErrors.js";
-import {
-  CreateUserInput,
-  LoginUserInput,
-  SetAddictionTypeInput,
-} from "../../../types/user.types.js";
-import { AddictionEnum } from "../../../types/addiction.types.js";
+import { CreateUserInput, LoginUserInput } from "../../../types/user.types.js";
 import sendEmail from "../../../utils/transport.js";
 import { getVerifyEmailTemplate } from "../../../utils/emailTemplate.js";
 import { config } from "../../../utils/initEnv.js";
@@ -17,55 +12,30 @@ const MAX_PASSWORD_LENGTH = 20;
 
 const userResolvers = {
   Query: {
-    // Obter um usuário específico pelo ID
-    user: catchAsyncErrors(async (_, { id }: { id: string }) => {
-      const user = await UserModel.findById(id);
-      appAssert(user, "USER_NOT_FOUND", "User not found", {
+    me: catchAsyncErrors(async (_, __, { user }) => {
+      const loggedUser = await UserModel.findById(user.id);
+      appAssert(loggedUser, "USER_NOT_FOUND", "User not found", {
         description: "No user exists with the given ID.",
       });
-      return user;
+      return loggedUser;
     }),
 
-    // Obter uma lista completa de usuários (sem paginação)
-    users: catchAsyncErrors(async () => {
-      return await UserModel.find();
-    }),
-
-    // Retornar o total de usuários cadastrados
-    totalUsers: catchAsyncErrors(async () => {
+    usersCount: catchAsyncErrors(async () => {
       return await UserModel.countDocuments();
     }),
 
-    
-    paginatedUsers: catchAsyncErrors(async (_, { limit, offset }, context) => {
-      // Apenas ADMIN pode acessar
-      console.log("Usuário autenticado:", context.user);
-      appAssert(context.user?.role === "ADMIN", "UNAUTHORIZED", "Access denied.");
-
+    paginatedUsers: catchAsyncErrors(async (_, { limit, offset }) => {
       const users = await UserModel.find().skip(offset).limit(limit);
-      const totalUsers = await UserModel.countDocuments();
+      const usersCount = await UserModel.countDocuments();
 
-      return { users, totalUsers };
+      return { users, usersCount };
     }),
   },
 
   Mutation: {
     createUser: catchAsyncErrors(
-      async (_, { input }: { input: CreateUserInput }, context) => {
+      async (_, { input }: { input: CreateUserInput }) => {
         const { name, email, password } = input;
-
-        
-        console.log("Role do user autenticado:", context.user);
-        // Verifica se o utilizador está autenticado e possui permissão
-          if (!context.user) {
-            throw new Error("Sem token. Faça login para continuar.");
-          }
-
-           // Verifica se o role do utilizador é "USER" ou "ADMIN"
-           if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
-            throw new Error("Você não tem permissão para adicionar vícios a outro user.");
-          }
-          console.log("Role do user autenticado:", context.user.role);
 
         // Check if all three fields are provided
         appAssert(name, "MISSING_FIELDS", "Name is required.", {
@@ -143,65 +113,37 @@ const userResolvers = {
 
     login: catchAsyncErrors(async (_, { input }: { input: LoginUserInput }) => {
       const { email, password } = input;
-      const user = await UserModel.findOne({ email });
+      let user = await UserModel.findOne({ email });
       appAssert(user, "WRONG_CREDENTIALS", "Wrong Credentials");
 
       // Compare the provided password with the stored password
       const isPasswordValid = await user.comparePassword(password);
       appAssert(isPasswordValid, "WRONG_CREDENTIALS", "Wrong Credentials");
-      console.log(`✅ Usuário autenticado: ${user.email} (Role: ${user.role})`);
 
       // Generate JWT token
       const token = user.generateAuthToken();
-      console.log('Token gerado:', token);
       return { user, token };
     }),
 
-    /* setAddictionType: catchAsyncErrors(
-      async (_, { userId, addictionType }: SetAddictionTypeInput) => {
-        // Validate addictionType
-        appAssert(
-          Object.values(AddictionEnum).includes(addictionType),
-          "INVALID_ADDICTION_TYPE",
-          "Invalid addiction type provided.",
-          { addictionType }
-        );
+    deleteMe: catchAsyncErrors(async (_, __, { user }) => {
+      const loggedUser = await UserModel.findByIdAndDelete(user.id);
 
-        // Find user and update addiction type
-        const user = await UserModel.findById(userId);
-        appAssert(user, "USER_NOT_FOUND", "User not found", { userId });
+      appAssert(loggedUser, "USER_NOT_FOUND", "User not found", {
+        id: user.id,
+      });
 
-        user.addictionType = addictionType;
-        await user.save();
-        return user;
-      }
-    ), */
+      return { message: "Logged Account deleted successfully." };
+    }),
 
-    deleteUser: catchAsyncErrors(async (_, { id }: { id: string }, context) => {
+    deleteUser: catchAsyncErrors(async (_, { id }: { id: string }) => {
       const user = await UserModel.findByIdAndDelete(id);
-
-      
-      console.log("Role do user autenticado:", context.user);
-      // Verifica se o utilizador está autenticado e possui permissão
-        if (!context.user) {
-          throw new Error("Sem token. Faça login para continuar.");
-        }
-
-         // Verifica se o role do utilizador é "USER" ou "ADMIN"
-         if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
-          throw new Error("Você não tem permissão para adicionar vícios a outro user.");
-        }
-        console.log("Role do user autenticado:", context.user.role);
 
       appAssert(user, "USER_NOT_FOUND", "User not found", { id });
       return { message: "User deleted successfully." };
     }),
 
     resetPassword: catchAsyncErrors(
-      async (
-        _,
-        { userId, newPassword }: { userId: string; newPassword: string }
-      ) => {
+      async (_, { newPassword }: { newPassword: string }, { user }) => {
         appAssert(
           newPassword.length >= MIN_PASSWORD_LENGTH &&
             newPassword.length <= MAX_PASSWORD_LENGTH,
@@ -210,16 +152,18 @@ const userResolvers = {
           { passwordLength: newPassword.length }
         );
 
-        const user = await UserModel.findById(userId);
-        appAssert(user, "USER_NOT_FOUND", "User not found", { userId });
+        const foundUser = await UserModel.findById(user.id);
+        appAssert(foundUser, "USER_NOT_FOUND", "User not found", {
+          userId: user.id,
+        });
 
-        user.password = newPassword; // I hash the password in the UserModel pre-save hook.
-        await user.save();
+        foundUser.password = newPassword; // I hash the password in the UserModel pre-save hook.
+        await foundUser.save();
         return { message: "Password reset successfully." };
       }
     ),
 
-   /*  incrementDaysSober: catchAsyncErrors(
+    /*  incrementDaysSober: catchAsyncErrors(
       async (_, { userId }: { userId: string }) => {
         const user = await UserModel.findById(userId);
         appAssert(user, "USER_NOT_FOUND", "User not found", { userId });
@@ -233,6 +177,3 @@ const userResolvers = {
 };
 
 export default userResolvers;
-
-// add reasons the person has to do something to a list. so it appears on the home page
-// Get all users dealing with a specific addiction type.

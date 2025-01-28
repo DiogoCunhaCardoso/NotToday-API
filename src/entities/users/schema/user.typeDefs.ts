@@ -51,12 +51,10 @@ type UsersPagination {
 
 
   type Query {
-    # Gets a user by ID
-    user(id: ID!): User!  @auth(roles: ["ADMIN"])
-    # Retrieves a list of all users
-    users: [User]!  @auth(roles: ["ADMIN"])
-    totalUsers: Int!  @auth(roles: ["ADMIN"])
-
+    # Gets loggedUser
+    me: User!  @auth(roles: ["USER", "ADMIN"])
+     # Gets number of all users
+    usersCount: Int!  @auth(roles: ["USER", "ADMIN"])
     # Get a paginated list of users.
     # Access: Private (ADMIN role only).
     paginatedUsers(limit: Int!, offset: Int!): UsersPagination! @auth(roles: ["ADMIN"])
@@ -64,17 +62,19 @@ type UsersPagination {
 
   type Mutation {
     # Creates a new user
-    createUser(input: CreateUserInput!): UserOmittedFields!  @auth(roles: ["USER", "ADMIN"])
+    createUser(input: CreateUserInput!): UserOmittedFields!
     # Sets the addiction type for a user
     # setAddictionType(input: SetAddictionTypeInput!): User!
     # Logins user by generating a token
-    login(input: LoginInput!): LoginResponse! @auth(roles: ["USER", "ADMIN"])
+    login(input: LoginInput!): LoginResponse!
     # Increments days sober
     # incrementDaysSober(userId: ID!): User!
     # Resets Password
-    resetPassword(userId: ID!, newPassword: String!): String! @auth(roles: ["USER", "ADMIN"])
+    resetPassword(newPassword: String!): String! @auth(roles: ["USER", "ADMIN"])
+    # Deletes loggedInUserAccount
+    deleteMe: String! @auth(roles: ["USER", "ADMIN"])
     # Deletes a user
-    deleteUser(id: ID!): String! @auth(roles: ["USER", "ADMIN"])
+    deleteUser(id: ID!): String! @auth(roles: ["ADMIN"])
   }
 `;
 

@@ -1,7 +1,7 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import userTypeDefs from "../entities/users/schema/user.typeDefs.js";
-import userResolvers from "../entities/users/schema/resolvers.js";
+import userResolvers from "../entities/users/schema/user.resolvers.js";
 import addictionTypeDefs from "../entities/addictions/schema/addiction.typeDefs.js";
 import addictionResolvers from "../entities/addictions/schema/addiction.resolvers.js";
 import connectDB from "./db.js";
@@ -11,14 +11,40 @@ import userAddictionTypeDefs from "../entities/userAddictions/schema/userAddicti
 import userAddictionResolvers from "../entities/userAddictions/schema/userAddictions.resolvers.js";
 import userMilestoneTypeDefs from "../entities/userMilestone/schema/userMilestone.typeDefs.js";
 import userMilestoneResolvers from "../entities/userMilestone/schema/userMilestone.resolvers.js";
-import directiveTypeDefs from "../directives/directives.typeDefs.js";
-import { verifyToken } from "../utils/verifyToken.js";
+import { authDirective } from "../directives/auth.directives.js";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 
 connectDB();
 
+const { authDirectiveTypeDefs, authDirectiveTransformer } =
+  authDirective("auth");
+
+const typeDefs = [
+  userTypeDefs,
+  addictionTypeDefs,
+  diaryTypeDefs,
+  userAddictionTypeDefs,
+  userMilestoneTypeDefs,
+  authDirectiveTypeDefs,
+];
+const resolvers = [
+  userResolvers,
+  addictionResolvers,
+  diaryResolvers,
+  userAddictionResolvers,
+  userMilestoneResolvers,
+];
+
+// Define the schema using makeExecutableSchema
+let schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+});
+
+schema = authDirectiveTransformer(schema);
+
 const server = new ApolloServer({
-  typeDefs: [userTypeDefs, addictionTypeDefs, diaryTypeDefs, userAddictionTypeDefs, userMilestoneTypeDefs, directiveTypeDefs],
-  resolvers: [userResolvers, addictionResolvers, diaryResolvers, userAddictionResolvers, userMilestoneResolvers],
+  schema,
   introspection: true,
 });
 
@@ -26,11 +52,13 @@ const startServer = async () => {
   const { url } = await startStandaloneServer(server, {
     listen: { port: 4000 },
     context: async ({ req }) => {
-      const authHeader = req.headers.authorization || "";
-      const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
-      const user = token ? verifyToken(token) : null;
-      return { user, token };
-    }
+      const authHeader = req.headers.authorization || ""; // Retrieve Authorization header
+      const token = authHeader.startsWith("Bearer ")
+        ? authHeader.slice(7)
+        : null;
+
+      return { req, token }; // Pass the token into the context
+    },
   });
 
   console.log(`🚀 Server ready at: ${url}`);

@@ -9,33 +9,21 @@ import { DiaryModel } from "../models/diary.model.js";
 const diaryResolvers = {
   Query: {
     // Get all diary entries for a user
-    diaryEntries: catchAsyncErrors(
-      async (_, { userId }: { userId: string }) => {
-        const entries = await DiaryModel.find({ userId });
-        return entries;
-      }
-    ),
+    diaryEntries: catchAsyncErrors(async (_, __, { user }) => {
+      const entries = await DiaryModel.find({ userId: user.id });
+      return entries;
+    }),
   },
 
   Mutation: {
     // Create a new diary entry
-    createDiary: catchAsyncErrors(async (_,{ userId, input }: { userId: string; input: DiaryEntryInput }, context) => {
+    createDiary: catchAsyncErrors(
+      async (_, { input }: { input: DiaryEntryInput }, { user }) => {
         const { title, content } = input;
-
-        console.log("Role do user autenticado:", context.user);
-        // Verifica se o utilizador está autenticado e possui permissão
-          if (!context.user) {
-            throw new Error("Sem token. Faça login para continuar.");
-          }
-
-           // Verifica se o role do utilizador é "USER" ou "ADMIN"
-           if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
-            throw new Error("Você não tem permissão para adicionar vícios a outro user.");
-          }
-          console.log("Role do user autenticado:", context.user.role);
+        const userId = user.id;
 
         appAssert(
-          userId && title && content,
+          title && content,
           "MISSING_FIELDS",
           "All fields are required.",
           input
@@ -74,14 +62,19 @@ const diaryResolvers = {
 
     // Update an existing diary entry
     updateDiary: catchAsyncErrors(
-      async (_, { input }: { input: UpdateDiaryEntryInput }) => {
-        const { id, title, content, userId } = input;
+      async (_, { input }: { input: UpdateDiaryEntryInput }, { user }) => {
+        const { id, title, content } = input;
         const entry = await DiaryModel.findById(id);
+
+        const userId = user.id;
         appAssert(entry, "ENTRY_NOT_FOUND", "Diary entry not found.", { id });
 
-        if (entry.userId.toString() !== userId) {
-          throw new Error("Unauthorized: You cannot update this diary entry.");
-        }
+        appAssert(
+          entry.userId.toString() === userId,
+          "UNAUTHORIZED",
+          "Unauthorized: You cannot update this diary entry.",
+          { userId: userId }
+        );
 
         if (title) entry.title = title;
         if (content) entry.content = content;
@@ -93,31 +86,27 @@ const diaryResolvers = {
     ),
 
     // Delete a diary entry
-    deleteDiary: catchAsyncErrors(async (_, { id }: { id: string }, context) => {
-      const entry = await DiaryModel.findById(id);
+    deleteDiary: catchAsyncErrors(
+      async (_, { id }: { id: string }, { user }) => {
+        const entry = await DiaryModel.findById(id);
 
-      
-      console.log("Role do user autenticado:", context.user);
-      // Verifica se o utilizador está autenticado e possui permissão
-        if (!context.user) {
-          throw new Error("Sem token. Faça login para continuar.");
-        }
+        const userId = user.id;
+        appAssert(entry, "ENTRY_NOT_FOUND", "Diary entry not found.", { id });
 
-         // Verifica se o role do utilizador é "USER" ou "ADMIN"
-         if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
-          throw new Error("Você não tem permissão para adicionar vícios a outro user.");
-        }
-        console.log("Role do user autenticado:", context.user.role);
+        appAssert(
+          entry.userId.toString() === userId,
+          "UNAUTHORIZED",
+          "Unauthorized: You cannot update this diary entry.",
+          { userId: userId }
+        );
 
-      // Check if the journal exists
-      appAssert(entry, "ENTRY_NOT_FOUND", "Diary entry not found.", { id });
+        // Delete the journal
+        await DiaryModel.findByIdAndDelete(id);
 
-      // Delete the journal
-      await DiaryModel.findByIdAndDelete(id);
-
-      // Return a success message
-      return "Diary entry deleted successfully.";
-    }),
+        // Return a success message
+        return "Diary entry deleted successfully.";
+      }
+    ),
   },
 };
 

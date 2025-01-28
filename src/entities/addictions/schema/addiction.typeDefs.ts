@@ -55,13 +55,13 @@ type Query {
 
   Access: Public (Any User).
   """
-  addiction(id: ID!): Addiction @auth(roles: ["USER"])
+  addiction(id: ID!): Addiction @auth(roles: ["USER", "ADMIN"])
   """
   Fetch all addictions.
 
   Access: Public (Any User).
   """
-  addictions: [Addiction] @auth(roles: ["USER"])
+  addictions: [Addiction] @auth(roles: ["USER", "ADMIN"])
 }
 
 type Mutation {
@@ -70,7 +70,7 @@ type Mutation {
 
   Access: Private (ADMIN role only).
   """
-  createAddiction(input: CreateAddictionInput!): Addiction! @auth(roles: ["USER", "ADMIN"])
+  createAddiction(input: CreateAddictionInput!): Addiction! @auth(roles: ["ADMIN"])
   """
   Update an existing addiction entry.
 
