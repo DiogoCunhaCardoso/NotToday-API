@@ -26,8 +26,20 @@ const addictionResolvers = {
   Mutation: {
     // Create a new addiction
     createAddiction: catchAsyncErrors(
-      async (_: any, { input }: { input: createAddictionInput }) => {
+      async (_: any, { input }: { input: createAddictionInput }, context) => {
         const {type} = input;
+
+        console.log("Role do user autenticado:", context.user);
+        // Verifica se o utilizador está autenticado e possui permissão
+          if (!context.user) {
+            throw new Error("Sem token. Faça login para continuar.");
+          }
+
+           // Verifica se o role do utilizador é "USER" ou "ADMIN"
+           if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
+            throw new Error("Você não tem permissão para adicionar vícios a outro user.");
+          }
+          console.log("Role do user autenticado:", context.user.role);
     
         const existingAddiction = await AddictionModel.findOne({ type });
     
@@ -49,9 +61,20 @@ const addictionResolvers = {
     
 
     // Update an existing addiction
-    updateAddiction: catchAsyncErrors(async (_, { input }: { input: updateAddictionInput }) => {
+    updateAddiction: catchAsyncErrors(async (_, { input }: { input: updateAddictionInput }, context) => {
       const { _id, type, severity, symptoms, treatmentOptions, triggers, copingMechanisms } = input;
     
+      console.log("Role do user autenticado:", context.user);
+      // Verifica se o utilizador está autenticado e possui permissão
+        if (!context.user) {
+          throw new Error("Sem token. Faça login para continuar.");
+        }
+
+         // Verifica se o role do utilizador é "USER" ou "ADMIN"
+         if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
+          throw new Error("Você não tem permissão para adicionar vícios a outro user.");
+        }
+        console.log("Role do user autenticado:", context.user.role);
       
       // Search for addition by ID
       const addiction = await AddictionModel.findByIdAndUpdate(_id);
@@ -75,8 +98,21 @@ const addictionResolvers = {
 
     // Delete an addiction
     deleteAddiction: catchAsyncErrors(
-      async (_: any, { input }: { input: { id: string } }) => {
+      async (_: any, { input }: { input: { id: string } }, context) => {
         const { id } = input;
+
+        console.log("Role do user autenticado:", context.user);
+        // Verifica se o utilizador está autenticado e possui permissão
+          if (!context.user) {
+            throw new Error("Sem token. Faça login para continuar.");
+          }
+
+           // Verifica se o role do utilizador é "USER" ou "ADMIN"
+           if (context.user.role !== "USER" && context.user.role !== "ADMIN") {
+            throw new Error("Você não tem permissão para adicionar vícios a outro user.");
+          }
+          console.log("Role do user autenticado:", context.user.role);
+
         const addiction = await AddictionModel.findByIdAndDelete(id);
         appAssert(addiction, "ADDICITON_NOT_FOUND", "Addiction not found", {
           id,

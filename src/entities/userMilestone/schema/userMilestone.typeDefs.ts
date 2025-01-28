@@ -29,7 +29,7 @@ type UserMilestone {
 
   Private (User role that is owner): Apenas o usuário dono pode acessar.
   """
-  getUserMilestones(userId: ID!): [UserMilestone]
+  getUserMilestones(userId: ID!): [UserMilestone] @auth(roles: ["ADMIN"])
 }
 
 type Mutation {
@@ -38,14 +38,14 @@ type Mutation {
 
   Private (User role that is owner): Apenas o usuário dono pode acessar.
   """
-  createUserMilestone(input: CreateUserMilestoneInput!): UserMilestone!
+  createUserMilestone(input: CreateUserMilestoneInput!): UserMilestone! @auth(roles: ["ADMIN"])
 
   """
   Delete a user milestone.
 
   Private (User role that is owner): Apenas o usuário dono pode acessar.
   """
-  deleteUserMilestone(id: ID!): String!
+  deleteUserMilestone(id: ID!): String! @auth(roles: ["ADMIN"])
 
 }
 
@@ -55,7 +55,7 @@ type Subscription {
 
   Private (User role that is owner): Apenas o usuário dono pode acessar.
   """
-  milestoneAchieved: UserMilestone! 
+  milestoneAchieved: UserMilestone! @auth(roles: ["USER"]) 
 }
 `;
 

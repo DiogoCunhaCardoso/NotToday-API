@@ -1,12 +1,11 @@
 import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { IUserModel } from "../../../types/user.types.js";
-import { AddictionEnum, SeverityEnum } from "../../../types/addiction.types.js";
+import { IUserModel, UserRolesEnum } from "../../../types/user.types.js";
+
 import lodash from "lodash";
 const { omit } = lodash;
 import { config } from "../../../utils/initEnv.js";
-import UserAddictionModel from "../../userAddictions/models/userAddictions.model.js";
 
 // Define fields to be omitted for privacy
 export const privateFields = [
@@ -19,6 +18,11 @@ export const privateFields = [
 // Define the user schema
 const userSchema = new Schema<IUserModel>(
   {
+    role: {
+      type: String,
+      enum: UserRolesEnum,
+      default: UserRolesEnum.USER,
+    }, 
     name: { type: String, required: true },
     pfp: { type: String },
     email: {
@@ -65,7 +69,7 @@ userSchema.methods.comparePassword = async function (
 /* GENERATE TOKEN -------------------------------------------------------- */
 
 userSchema.methods.generateAuthToken = function () {
-  const payload = { id: this._id, email: this.email };
+  const payload = { id: this._id, role: this.role };
   return jwt.sign(payload, config.JWT_SECRET, { expiresIn: "1h" });
 };
 

@@ -15,8 +15,8 @@ type UserAddiction {
 }
 
 type Mutation {
-    addAddictionToUser(input: AddAddictionToUserInput!): User
-    removeAddictionFromUser(input: RemoveAddictionFromUserInput!): User!
+    addAddictionToUser(input: AddAddictionToUserInput!): User @auth(roles: ["USER", "ADMIN"])
+    removeAddictionFromUser(input: RemoveAddictionFromUserInput!): User! @auth(roles: ["USER", "ADMIN"])
 }
 `;
 
