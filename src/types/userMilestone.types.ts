@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
 
-
-
-export enum MilestoneNameEnum{
+export enum MilestoneNameEnum {
   Awakening = "Awakening",
   Determination = "Determination",
   Resilience = "Resilience",
@@ -13,17 +11,13 @@ export enum MilestoneNameEnum{
 }
 
 export interface IUserMilestone {
-    userId: mongoose.Schema.Types.ObjectId;
-    name: MilestoneNameEnum;
-    level: number;
-    achievedDate?: Date;
-  }
+  userId: mongoose.Schema.Types.ObjectId;
+  name: MilestoneNameEnum;
+  level: number;
+  achievedDate?: Date;
+}
 
-  export interface CreateUserMilestoneInput {
-    userId: string
-    name: MilestoneNameEnum
-    level: number
-  }
-
-  
-  
+export interface CreateUserMilestoneInput {
+  name: MilestoneNameEnum;
+  level: number;
+}

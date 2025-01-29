@@ -22,7 +22,7 @@ const userSchema = new Schema<IUserModel>(
       type: String,
       enum: UserRolesEnum,
       default: UserRolesEnum.USER,
-    }, 
+    },
     name: { type: String, required: true },
     pfp: { type: String },
     email: {
@@ -70,7 +70,7 @@ userSchema.methods.comparePassword = async function (
 
 userSchema.methods.generateAuthToken = function () {
   const payload = { id: this._id, role: this.role };
-  return jwt.sign(payload, config.JWT_SECRET, { expiresIn: "1h" });
+  return jwt.sign(payload, config.JWT_SECRET, { expiresIn: "10h" });
 };
 
 /* GENERATE VERIFICATION TOKEN ------------------------------------------- */

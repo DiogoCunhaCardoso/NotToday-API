@@ -6,13 +6,6 @@ export const createUserInputType = `#graphql
   }
 `;
 
-export const setAddictionTypeInputType = `#graphql
-  input SetAddictionTypeInput {
-    userId: ID!
-    addictionType: AddictionEnum!
-  }
-`;
-
 export const loginInputType = `#graphql
 input LoginInput {
   email: String!

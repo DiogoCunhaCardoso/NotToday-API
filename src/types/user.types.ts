@@ -1,7 +1,6 @@
 import { Document, Types } from "mongoose";
 import { AddictionEnum } from "./addiction.types.js";
 
-
 export enum UserRolesEnum {
   USER = "USER",
   ADMIN = "ADMIN",
@@ -18,11 +17,6 @@ export interface LoginUserInput {
   password: string;
 }
 
-export interface SetAddictionTypeInput {
-  userId: string;
-  addictionType: AddictionEnum;
-}
-
 export interface IUserModel extends CreateUserInput, Document {
   pfp: string;
   emailVerified: boolean;
@@ -30,7 +24,7 @@ export interface IUserModel extends CreateUserInput, Document {
   createdAt: Date;
   updatedAt: Date;
   addictions: Types.ObjectId[];
-  role: UserRolesEnum,
+  role: UserRolesEnum;
 
   comparePassword(candidatePassword: string): Promise<boolean>;
   omitPrivateFields(): Partial<IUserModel>;

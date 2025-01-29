@@ -1,6 +1,5 @@
 import {
   createUserInputType,
-  setAddictionTypeInputType,
   loginInputType,
   loginResponseType,
   userOmittedType,
@@ -10,7 +9,6 @@ const userTypeDefs = `#graphql
 
   # Input types
   ${createUserInputType}
-  ${setAddictionTypeInputType}
   ${loginInputType}
   ${loginResponseType}
   ${userOmittedType}
@@ -63,8 +61,6 @@ type UsersPagination {
   type Mutation {
     # Creates a new user
     createUser(input: CreateUserInput!): UserOmittedFields!
-    # Sets the addiction type for a user
-    # setAddictionType(input: SetAddictionTypeInput!): User!
     # Logins user by generating a token
     login(input: LoginInput!): LoginResponse!
     # Increments days sober

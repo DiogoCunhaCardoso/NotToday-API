@@ -1,5 +1,5 @@
 import mongoose, { Types } from "mongoose";
-import { SeverityEnum } from "./addiction.types.js"; // Ensure this is the correct import path for SeverityEnum
+import { SeverityEnum } from "./addiction.types.js";
 
 export interface IUserAddictionModel {
   addiction: mongoose.Types.ObjectId; // Reference to Addiction model
@@ -8,11 +8,9 @@ export interface IUserAddictionModel {
 }
 
 export interface addAddictionToUserInput {
-  userId: string; 
-  addictionType: string
+  addictionType: string;
 }
 
 export interface RemoveAddictionFromUserInput {
-  userId: string; 
-  addictionType: string
+  addictionType: string;
 }

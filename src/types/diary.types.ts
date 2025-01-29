@@ -9,23 +9,19 @@ export interface CreateDiaryInput {
 }
 
 export interface DiaryEntryInput {
-  userId: string;
   title: string;
   content: string;
 }
 
 export interface UpdateDiaryEntryInput {
   id: string;
-  userId: string;
   title?: string;
   content?: string;
 }
 
 export interface DeleteDiaryEntryInput {
-  id: string;     
-  userId: string; 
+  id: string;
 }
-
 
 export interface IDiaryModel extends CreateDiaryInput, Document {
   userId: Types.ObjectId;
