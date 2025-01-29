@@ -4,7 +4,7 @@
 
 1. Copy the `.env.example` file provided in the repository.
 2. Rename the copied file to `.env`.
-3. Update the variables in the `.env` file with your configuration (e.g., database URL, port, etc.).
+3. Update the variables in the `.env` file with your configuration (the only thing you need to change is MONGO_URI to your URI).
 
 ---
 
