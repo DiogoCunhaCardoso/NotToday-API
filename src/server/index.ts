@@ -1,67 +1,50 @@
+import { createServer } from "http";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/lib/use/ws";
+import express from "express";
+import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServer } from "@apollo/server";
-import { startStandaloneServer } from "@apollo/server/standalone";
-import userTypeDefs from "../entities/users/schema/user.typeDefs.js";
-import userResolvers from "../entities/users/schema/user.resolvers.js";
-import addictionTypeDefs from "../entities/addictions/schema/addiction.typeDefs.js";
-import addictionResolvers from "../entities/addictions/schema/addiction.resolvers.js";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import schema from "./schema.js";
 import connectDB from "./db.js";
-import diaryTypeDefs from "../entities/diaries/schema/diary.typeDefs.js";
-import diaryResolvers from "../entities/diaries/schema/diary.resolvers.js";
-import userAddictionTypeDefs from "../entities/userAddictions/schema/userAddictions.typeDefs.js";
-import userAddictionResolvers from "../entities/userAddictions/schema/userAddictions.resolvers.js";
-import userMilestoneTypeDefs from "../entities/userMilestone/schema/userMilestone.typeDefs.js";
-import userMilestoneResolvers from "../entities/userMilestone/schema/userMilestone.resolvers.js";
-import { authDirective } from "../directives/auth.directives.js";
-import { makeExecutableSchema } from "@graphql-tools/schema";
+ // Ensure you import your schema
 
-connectDB();
+ connectDB();
 
-const { authDirectiveTypeDefs, authDirectiveTransformer } =
-  authDirective("auth");
+const app = express();
+const httpServer = createServer(app);
 
-const typeDefs = [
-  userTypeDefs,
-  addictionTypeDefs,
-  diaryTypeDefs,
-  userAddictionTypeDefs,
-  userMilestoneTypeDefs,
-  authDirectiveTypeDefs,
-];
-const resolvers = [
-  userResolvers,
-  addictionResolvers,
-  diaryResolvers,
-  userAddictionResolvers,
-  userMilestoneResolvers,
-];
-
-// Define the schema using makeExecutableSchema
-let schema = makeExecutableSchema({
-  typeDefs,
-  resolvers,
-});
-
-schema = authDirectiveTransformer(schema);
+app.use(express.json());
 
 const server = new ApolloServer({
   schema,
-  introspection: true,
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
 const startServer = async () => {
-  const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
-    context: async ({ req }) => {
-      const authHeader = req.headers.authorization || ""; // Retrieve Authorization header
-      const token = authHeader.startsWith("Bearer ")
-        ? authHeader.slice(7)
-        : null;
+  await server.start();
+  app.use(
+    "/graphql",
+    expressMiddleware(server, {
+      context: async ({ req }) => {
+        const authHeader = req.headers.authorization || "";
+        const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+        return { req, token };
+      },
+    })
+  );
 
-      return { req, token }; // Pass the token into the context
-    },
+  // Configuring WebSocket server for subscriptions
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: "/graphql",
   });
+  useServer({ schema }, wsServer);
 
-  console.log(`🚀 Server ready at: ${url}`);
+  const PORT = 4000;
+  httpServer.listen(PORT, () => {
+    console.log(`Server ready at http://localhost:${PORT}/graphql`);
+  });
 };
 
 startServer().catch((err) => {

@@ -23,7 +23,6 @@ export interface IUserModel extends CreateUserInput, Document {
   passwordResetCode: string;
   createdAt: Date;
   updatedAt: Date;
-  addictions: Types.ObjectId[];
   role: UserRolesEnum;
 
   comparePassword(candidatePassword: string): Promise<boolean>;

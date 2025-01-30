@@ -5,6 +5,7 @@ import { CreateUserInput, LoginUserInput } from "../../../types/user.types.js";
 import sendEmail from "../../../utils/transport.js";
 import { getVerifyEmailTemplate } from "../../../utils/emailTemplate.js";
 import { config } from "../../../utils/initEnv.js";
+import { verifyToken } from "../../../utils/verifyToken.js";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const MIN_PASSWORD_LENGTH = 8;
@@ -163,16 +164,27 @@ const userResolvers = {
       }
     ),
 
-    /*  incrementDaysSober: catchAsyncErrors(
-      async (_, { userId }: { userId: string }) => {
-        const user = await UserModel.findById(userId);
-        appAssert(user, "USER_NOT_FOUND", "User not found", { userId });
+    verifyEmail: catchAsyncErrors(async (_, { token }: { token: string }) => {
+      // Verify and decode the token
+      const decoded = verifyToken(token);
+      appAssert(
+        decoded,
+        "INVALID_TOKEN",
+        "The token is invalid or has expired."
+      );
 
-        user.daysSober = (user.daysSober || 0) + 1;
-        await user.save();
-        return user;
-      }
-    ), */
+      const userId = decoded.id;
+
+      // Find the user
+      const user = await UserModel.findById(userId);
+      appAssert(user, "USER_NOT_FOUND", "User not found.");
+
+      // Mark the user as verified
+      user.emailVerified = true;
+      await user.save();
+
+      return "Email verified successfully!";
+    }),
   },
 };
 

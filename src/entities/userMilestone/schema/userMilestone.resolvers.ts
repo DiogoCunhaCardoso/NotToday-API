@@ -2,7 +2,9 @@ import { catchAsyncErrors } from "../../../middleware/catchAsyncErrors.js";
 import { UserMilestoneModel } from "../models/userMilestone.model.js";
 import { appAssert } from "../../../utils/appAssert.js";
 import { CreateUserMilestoneInput } from "../../../types/userMilestone.types.js";
-import { pubsub } from "./pubsub.js";
+
+const CHECK_INTERVAL = 10 * 60 * 1000;
+
 
 const userMilestoneResolvers = {
   Query: {
@@ -47,15 +49,7 @@ const userMilestoneResolvers = {
       }
     ),
   },
-
-  Subscription: {
-    milestoneAchieved: {
-      subscribe: () => pubsub.asyncIterableIterator(["MILESTONE_ACHIEVED"]),
-      /* When a client subscribes to an event (in this case, "MILESTONE_ACHIEVED"), 
-       the subscription listens for new published events. When you call pubsub.publish("MILESTONE_ACHIEVED", ...), 
-       the asyncIterableIterator will emit the data to all connected clients that are subscribed to that event. */
-    },
-  },
+ 
 };
 
 export default userMilestoneResolvers;

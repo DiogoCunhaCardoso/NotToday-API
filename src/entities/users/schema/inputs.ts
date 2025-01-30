@@ -24,7 +24,6 @@ export const userOmittedType = `#graphql
 type UserOmittedFields {
   _id: ID!
   name: String!
-  addictions: [UserAddiction]
 }
 
 `;

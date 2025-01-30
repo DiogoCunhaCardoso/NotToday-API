@@ -31,12 +31,11 @@ const userTypeDefs = `#graphql
   # USER -----------------------------------------------------------------------
 
   type User {
-    id: ID!
+    _id: ID!
     name: String!
     email: String!
     password: String!
     emailVerified: Boolean!
-    addictions: [UserAddiction]
     role: UserRolesEnum!
 }
 
@@ -63,14 +62,14 @@ type UsersPagination {
     createUser(input: CreateUserInput!): UserOmittedFields!
     # Logins user by generating a token
     login(input: LoginInput!): LoginResponse!
-    # Increments days sober
-    # incrementDaysSober(userId: ID!): User!
-    # Resets Password
-    resetPassword(newPassword: String!): String! @auth(roles: ["USER", "ADMIN"])
     # Deletes loggedInUserAccount
     deleteMe: String! @auth(roles: ["USER", "ADMIN"])
     # Deletes a user
     deleteUser(id: ID!): String! @auth(roles: ["ADMIN"])
+    # Resets Password
+    resetPassword(newPassword: String!): String! @auth(roles: ["USER", "ADMIN"])
+    # Verify Email
+    verifyEmail(token: String!): String!
   }
 `;
 

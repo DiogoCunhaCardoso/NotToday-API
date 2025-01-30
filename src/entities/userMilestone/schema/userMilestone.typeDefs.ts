@@ -48,15 +48,6 @@ type Mutation {
   deleteUserMilestone(id: ID!): String! @auth(roles: ["ADMIN"])
 
 }
-
-type Subscription {
-  """
-  Listen for milestone achievements of a user.
-
-  Private (User role that is owner): Apenas o usuário dono pode acessar.
-  """
-  milestoneAchieved: UserMilestone! @auth(roles: ["USER"]) 
-}
 `;
 
 export default userMilestoneTypeDefs;

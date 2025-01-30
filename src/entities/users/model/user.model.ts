@@ -38,7 +38,6 @@ const userSchema = new Schema<IUserModel>(
     },
     passwordResetCode: { type: String },
     password: { type: String, required: true },
-    addictions: [{ type: Schema.Types.ObjectId, ref: "UserAddiction" }],
   },
   { timestamps: true }
 );
@@ -76,7 +75,7 @@ userSchema.methods.generateAuthToken = function () {
 /* GENERATE VERIFICATION TOKEN ------------------------------------------- */
 
 userSchema.methods.generateVerificationToken = function () {
-  const payload = { id: this._id, email: this.email };
+  const payload = { id: this._id};
   return jwt.sign(payload, config.JWT_SECRET, { expiresIn: "48h" });
 };
 
