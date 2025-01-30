@@ -112,7 +112,7 @@ const userResolvers = {
       }
     ),
 
-    login: catchAsyncErrors(async (_, { input }: { input: LoginUserInput },) => {
+    login: catchAsyncErrors(async (_, { input }: { input: LoginUserInput }) => {
       const { email, password } = input;
       let user = await UserModel.findOne({ email });
       appAssert(user, "WRONG_CREDENTIALS", "Wrong Credentials");
@@ -167,18 +167,22 @@ const userResolvers = {
     verifyEmail: catchAsyncErrors(async (_, { token }: { token: string }) => {
       // Verify and decode the token
       const decoded = verifyToken(token);
-      appAssert(decoded, "INVALID_TOKEN", "The token is invalid or has expired.");
-    
+      appAssert(
+        decoded,
+        "INVALID_TOKEN",
+        "The token is invalid or has expired."
+      );
+
       const userId = decoded.id;
-    
+
       // Find the user
       const user = await UserModel.findById(userId);
       appAssert(user, "USER_NOT_FOUND", "User not found.");
-    
+
       // Mark the user as verified
       user.emailVerified = true;
       await user.save();
-    
+
       return "Email verified successfully!";
     }),
   },
