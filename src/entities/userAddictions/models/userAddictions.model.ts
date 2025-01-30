@@ -9,6 +9,11 @@ const userAddictionSchema = new Schema<IUserAddictionModel>(
       ref: "Addiction", // Referencia o modelo Addiction pelo ID
       required: true,
     },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User", // Referencia o modelo Addiction pelo ID
+      required: true,
+    },
     severity: {
       type: String,
       enum: Object.values(SeverityEnum),
